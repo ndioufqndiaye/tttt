@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Authentification{% endblock %}
+
+{% block body %}
+    <h1>Create new Authentification</h1>
+
+    {{ include('authentification/_form.html.twig') }}
+
+    <a href="{{ path('authentification_index') }}">back to list</a>
+{% endblock %}

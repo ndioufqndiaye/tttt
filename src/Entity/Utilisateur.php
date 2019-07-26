@@ -58,6 +58,22 @@ class Utilisateur
      */
     private $transaction;
 
+    /**
+     * @ORM\Column(type="string", length=25)
+     */
+    private $login;
+
+    /**
+     * @ORM\Column(type="string", length=25)
+     */
+    private $password;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Administrateur", inversedBy="utilisateurs")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $Administrateur;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -161,6 +177,42 @@ class Utilisateur
         if ($newUtilisateur !== $transaction->getUtilisateur()) {
             $transaction->setUtilisateur($newUtilisateur);
         }
+
+        return $this;
+    }
+
+    public function getLogin(): ?string
+    {
+        return $this->login;
+    }
+
+    public function setLogin(string $login): self
+    {
+        $this->login = $login;
+
+        return $this;
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): self
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    public function getAdministrateur(): ?Administrateur
+    {
+        return $this->Administrateur;
+    }
+
+    public function setAdministrateur(?Administrateur $Administrateur): self
+    {
+        $this->Administrateur = $Administrateur;
 
         return $this;
     }
