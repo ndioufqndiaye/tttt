@@ -5,12 +5,15 @@ namespace App\Controller;
 use App\Entity\Partenaire;
 use App\Form\PartenaireType;
 use App\Repository\PartenaireRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
-use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
  * @Route("/partenaire")
@@ -29,8 +32,9 @@ class PartenaireController extends AbstractController
 
     /**
      * @Route("/new", name="partenairenew", methods={"GET","POST"})
+     * @Route("has_role('ROLE_ADMIN')")
      */
-    public function ajout(Request $request,SerializerInterface $serializer, EntityManagerInterface $entityManager): Response
+    public function ajout(Request $request,SerializerInterface $serializer, EntityManagerInterface $entityManager)
     {
         $partenaire = new Partenaire();
         $form=$this->createForm(PartenaireType::class,$partenaire);
@@ -40,11 +44,6 @@ class PartenaireController extends AbstractController
             $entityManager->persist($partenaire);
             $entityManager->flush();
             return new Response('Partenaire ajouter', Response::HTTP_CREATED);
-
-        
-    
-
-
     }
 
     /**
@@ -58,29 +57,38 @@ class PartenaireController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/edit", name="partenaire_edit", methods={"GET","POST"})
+     * @Route("/partenaire/{id}", name="update_phone", methods={"PUT"})
      */
-    public function edit(Request $request, Partenaire $partenaire): Response
+    public function update(Request $request, SerializerInterface $serializer, Partenaire $partenaire, ValidatorInterface $validator, EntityManagerInterface $entityManager)
     {
-        $form = $this->createForm(PartenaireType::class, $partenaire);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
-
-            return $this->redirectToRoute('partenaire_index');
+        $partenaireUpdate = $entityManager->getRepository(Partenaire::class)->find($partenaire->getId());
+        $data = json_decode($request->getContent());
+        foreach ($data as $key => $value){
+            if($key && !empty($value)) {
+                $name = ucfirst($key);
+                $setter = 'set'.$name;
+                $partenaireUpdate->$setter($value);
+            }
         }
-
-        return $this->render('partenaire/edit.html.twig', [
-            'partenaire' => $partenaire,
-            'form' => $form->createView(),
-        ]);
+        $errors = $validator->validate($partenaireUpdate);
+        if(count($errors)) {
+            $errors = $serializer->serialize($errors, 'json');
+            return new Response($errors, 500, [
+                'Content-Type' => 'application/json'
+            ]);
+        }
+        $entityManager->flush();
+        $data = [
+            'status' => 200,
+            'message' => 'Le partenaire a bien été mis à jour'
+        ];
+        return new JsonResponse($data);
     }
 
     /**
      * @Route("/{id}", name="partenaire_delete", methods={"DELETE"})
      */
-    public function delete(Request $request, Partenaire $partenaire): Response
+    /*public function delete(Request $request, Partenaire $partenaire): Response
     {
         if ($this->isCsrfTokenValid('delete'.$partenaire->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
@@ -89,5 +97,5 @@ class PartenaireController extends AbstractController
         }
 
         return $this->redirectToRoute('partenaire_index');
-    }
+    }*/
 }
