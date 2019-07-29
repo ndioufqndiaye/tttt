@@ -1,0 +1,29 @@
+<?php return [PHP_INT_MAX, static function () {
+
+    return \Symfony\Component\VarExporter\Internal\Hydrator::hydrate(
+        $o = [
+            clone (\Symfony\Component\VarExporter\Internal\Registry::$prototypes['ApiPlatform\\Core\\Metadata\\Resource\\ResourceNameCollection'] ?? \Symfony\Component\VarExporter\Internal\Registry::p('ApiPlatform\\Core\\Metadata\\Resource\\ResourceNameCollection')),
+        ],
+        null,
+        [
+            'ApiPlatform\\Core\\Metadata\\Resource\\ResourceNameCollection' => [
+                'classes' => [
+                    [
+                        'App\\Entity\\Partenaire',
+                        'App\\Entity\\Administrateur',
+                        'App\\Entity\\ComptePartenaire',
+                        'App\\Entity\\Expediteur',
+                        'App\\Entity\\Utilisateur',
+                        'App\\Entity\\Authentification',
+                        'App\\Entity\\Transaction',
+                        'App\\Entity\\Update',
+                        'App\\Entity\\Recepteur',
+                    ],
+                ],
+            ],
+        ],
+        $o[0],
+        []
+    );
+
+}];
